@@ -7,6 +7,8 @@
         mc:Ignorable="d"
         Title="MainWindow" Height="350" Width="525">
     <Grid>
-        
+        <Button x:Name="openJsonButton" Content="Open a JSON file" HorizontalAlignment="Left" Margin="10,10,0,0" VerticalAlignment="Top" Width="110" Click="openJsonButton_Click"/>
+        <Button x:Name="saveXmlButton" Content="Save to XML file" HorizontalAlignment="Left" Margin="125,10,0,0" VerticalAlignment="Top" Width="110" Click="saveXmlButton_Click"/>
+
     </Grid>
 </Window>
