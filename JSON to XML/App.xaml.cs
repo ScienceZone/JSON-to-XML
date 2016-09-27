@@ -15,15 +15,18 @@ namespace JSON_to_XML
     /// </summary>
     public partial class App : Application
     {
-        static public StreamWriter XMLWriter
+        static StreamWriter XMLWriter
         { get; set; }
 
-        static public StreamReader JSONReader
+        static StreamReader JSONReader
         { get; set; }
 
         static string json;
         static StringBuilder xml;
         static int tabCount = 0;
+        static Stack<string> fileObjects = new Stack<string>();
+        //this is needed to know when we should write a closing tag
+        static bool isValue = false;
 
         //Parsing the whole file
         static public void Parse(string fileName)
@@ -36,60 +39,101 @@ namespace JSON_to_XML
 
             xml = new StringBuilder();
             xml.Clear();
+            xml.Append(json);
 
-            while(i < json.Length)
-            {
-                json = json.TrimStart();
-            }
+            //while(i < json.Length)
+            //{
+            //    json = json.TrimStart();
+            //}
         }
 
-        //Parsing stuff starting with '{'
+        //A method for parsing a JSON object
+        //Assuming the string starts with '{' and ends with '}'
         //Should probably add object stack to save object names for handling closing tags
-        static int ParseObject(string str, int first, StringBuilder destination)
+        static int ParseObject(string str, StringBuilder destination)
         {
-            destination.Append("<");
-            int i = first + 1;
-            bool exit = false;
-            while (!exit)
+            str = str.Substring(1, str.Length - 1).Trim();
+            string[] pairs = str.Split(',');
+
+            foreach (string pair in pairs)
             {
-                switch(str[i])
-                {
-                    case '[':
-                        ParseArray(str, i, destination);
-                        break;
-                    case '\"':
-                    case '\'':
-                        ParseQuote(str, i, destination);
-                        break;
-                    case ':':
-                        destination.Append(">\n\t");
-                        tabCount++;
-                        break;
-                    default:
-                        break;
-                }
+                ParsePair(pair.Trim(), destination);
+                //Must add writing into destination here
             }
-            return first + 1;
+
+            return 0;
         }
 
-        //Parsing stuff starting with '['
-        static int ParseArray(string str, int first, StringBuilder destination)
+        //A method for parsing a JSON object array
+        //Assuming the string starts with '[' and ends with ']'
+        static int ParseArray(string str, StringBuilder destination)
         {
-            return first + 1;
-        }
+            str = str.Substring(1, str.Length - 1).Trim();
+            string[] elements = str.Split(',');
 
-        //Parsing stuff starting with quotation marks, either single or double
-        static int ParseQuote(string str, int first, StringBuilder destination)
-        {
-            int t = 1;
-            do
+            foreach (string element in elements)
             {
-                t = str.IndexOf(str[first], first + 1);
-            } while (str[t - 1] != '\\');
+                ParseValue(element.Trim(), destination);
+                //Must add writing into destination here
+            }
 
-            destination.Append(str.Substring(first + 1, t - first - 1));
-            
-            return t;
+            return 0;
+        }
+
+        //A method for parsing name:value pair inside an object
+        static int ParsePair(string str, StringBuilder destination)
+        {
+            int colonIndex = str.IndexOf(':');
+
+            //writing the element name into destination
+            string name = str.Substring(0, colonIndex).Trim();
+            destination.AppendFormat("<{0}>", name);
+            fileObjects.Push(name);
+
+            //parsing the element value
+            ParseValue(str.Substring(colonIndex + 1).Trim(), destination);
+
+            return 0;
+        }
+
+        //A method for parsing values of name:value pairs and array elements
+        static int ParseValue(string str, StringBuilder destination)
+        {
+            //less lines than if i used a switch block
+            if (str[0] != '{' && str[0] != '[')
+                destination.Append(str);
+            else
+            {
+                destination.AppendLine();
+                tabCount++;
+                ApplyTabs(destination);
+
+                if (str[0] == '{')
+                    ParseObject(str, destination);
+                else
+                    ParseArray(str, destination);
+                destination.AppendLine();
+
+                tabCount--;
+                ApplyTabs(destination);
+            }
+
+            destination.AppendFormat("</{0}>\n", fileObjects.Pop());
+
+            return 0;
+        }
+
+        static void ApplyTabs(StringBuilder destination)
+        {
+            for (int i = 0; i < tabCount; i++)
+                destination.Append("\t");
+        }
+
+        public static void WriteXMLtoFile(string fileName)
+        {
+            XMLWriter = new StreamWriter(fileName);
+            XMLWriter.Write(xml.ToString());
+            XMLWriter.Close();
         }
     }
 }

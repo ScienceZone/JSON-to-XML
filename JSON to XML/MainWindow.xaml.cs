@@ -54,7 +54,8 @@ namespace JSON_to_XML
 
         private void saveXmlButton_Click(object sender, RoutedEventArgs e)
         {
-
+            saveXmlDlg.ShowDialog();
+            App.WriteXMLtoFile(saveXmlDlg.FileName);
         }
     }
 }
