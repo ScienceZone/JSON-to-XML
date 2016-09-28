@@ -44,20 +44,16 @@ namespace JSON_to_XML
             }
 
             json.Trim();
+
+            xml.AppendLine("<root>");
+            fileObjects.Push("root");
+
             if (json[0] == '{')
-            {
-                xml.AppendLine("<root>");
-                fileObjects.Push("root");
                 ParseObject(json, xml);
-                xml.AppendLine("</root>");
-            }
             if (json[0] == '[')
-            {
-                xml.AppendLine("<rootArray>");
-                fileObjects.Push("rootArray");
                 ParseArray(json, xml);
-                xml.AppendLine("</rootArray>");
-            }
+
+            xml.AppendLine("</root>");
         }
 
         //A method for parsing a JSON object
@@ -126,12 +122,12 @@ namespace JSON_to_XML
                         {
                             ApplyTabs(destination);
                             //element's opening tag
-                            destination.AppendFormat("<{0}Element>", fileObjects.Peek());
+                            destination.AppendFormat("<element>");
                             //parsing an array element's value
                             ParseValue(str.Substring(lastValueStart, i - lastValueStart).Trim(), destination);
                             lastValueStart = i + 1;
                             //element's closing tag
-                            destination.AppendFormat("</{0}Element>\n", fileObjects.Peek());
+                            destination.AppendFormat("</element>\n");
                         }
                         break;
                     case '[':
@@ -156,11 +152,11 @@ namespace JSON_to_XML
 
             ApplyTabs(destination);
             //element's opening tag
-            destination.AppendFormat("<{0}Element>", fileObjects.Peek());
+            destination.AppendFormat("<element>");
             //parsing an array element's value
             ParseValue(str.Substring(lastValueStart, str.Length - lastValueStart).Trim(), destination);
             //element's closing tag
-            destination.AppendFormat("</{0}Element>\n", fileObjects.Peek());
+            destination.AppendFormat("</element>\n");
 
             tabCount--;
             return 0;
