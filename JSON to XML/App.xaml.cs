@@ -24,7 +24,8 @@ namespace JSON_to_XML
         static string json;
         static StringBuilder xml;
 
-        static int tabCount = 0;
+        //-1 because it gets incremented before we start any writing
+        static int tabCount = -1;
         //this is needed for elements' correct closing tags
         static Stack<string> fileObjects = new Stack<string>();
 
@@ -56,15 +57,17 @@ namespace JSON_to_XML
         //Assuming the string starts with '{' and ends with '}'
         static int ParseObject(string str, StringBuilder destination)
         {
+            tabCount++;
             str = str.Substring(1, str.Length - 2).Trim();
             int curlyBrackets = 0, brackets = 0, lastPairStart = 0;
+            bool areQuotesOk = true;
 
             for (int i = 0; i < str.Length; i++)
             {
                 switch (str[i])
                 {
                     case ',':
-                        if (curlyBrackets == 0 && brackets == 0)
+                        if (curlyBrackets == 0 && brackets == 0 && areQuotesOk)
                         {
                             ParsePair(str.Substring(lastPairStart, i - lastPairStart).Trim(), destination);
                             lastPairStart = i + 1;
@@ -82,6 +85,9 @@ namespace JSON_to_XML
                     case '}':
                         curlyBrackets--;
                         break;
+                    case '\"':
+                        areQuotesOk = !areQuotesOk;
+                        break;
                     default:
                         break;
                 }
@@ -89,6 +95,7 @@ namespace JSON_to_XML
 
             ParsePair(str.Substring(lastPairStart, str.Length - lastPairStart).Trim(), destination);
 
+            tabCount--;
             return 0;
         }
 
@@ -97,16 +104,19 @@ namespace JSON_to_XML
         //It almost duplicates the ParseObject method, gotta think how to get rid of that
         static int ParseArray(string str, StringBuilder destination)
         {
+            tabCount++;
             str = str.Substring(1, str.Length - 2).Trim();
             int curlyBrackets = 0, brackets = 0, lastValueStart = 0;
+            bool areQuotesOk = true;
 
             for (int i = 0; i < str.Length; i++)
             {
                 switch (str[i])
                 {
                     case ',':
-                        if (curlyBrackets == 0 && brackets == 0)
+                        if (curlyBrackets == 0 && brackets == 0 && areQuotesOk)
                         {
+                            ApplyTabs(destination);
                             //element's opening tag
                             destination.AppendFormat("<element>");
                             //parsing an array element's value
@@ -128,18 +138,23 @@ namespace JSON_to_XML
                     case '}':
                         curlyBrackets--;
                         break;
+                    case '\"':
+                        areQuotesOk = !areQuotesOk;
+                        break;
                     default:
                         break;
                 }
             }
-            
+
+            ApplyTabs(destination);
             //element's opening tag
             destination.AppendFormat("<element>");
             //parsing an array element's value
             ParseValue(str.Substring(lastValueStart, str.Length - lastValueStart).Trim(), destination);
             //element's closing tag
             destination.AppendFormat("</element>\n");
-            
+
+            tabCount--;
             return 0;
         }
 
@@ -171,8 +186,8 @@ namespace JSON_to_XML
             else
             {
                 destination.AppendLine();
-                tabCount++;
-                ApplyTabs(destination);
+                //tabCount++;
+                //ApplyTabs(destination);
 
                 if (str[0] == '{')
                     ParseObject(str, destination);
@@ -180,7 +195,7 @@ namespace JSON_to_XML
                     ParseArray(str, destination);
                 //destination.AppendLine();
 
-                tabCount--;
+                //tabCount--;
                 ApplyTabs(destination);
             }
 
