@@ -23,34 +23,41 @@ namespace JSON_to_XML
 
         static string json;
         static StringBuilder xml;
-
-        //-1 because it gets incremented before we start any writing
-        static int tabCount = -1;
+        
+        static int tabCount = 0;
         //this is needed for elements' correct closing tags
-        static Stack<string> fileObjects = new Stack<string>();
+        static Stack<string> fileObjects;
 
         //Parsing the whole file
         static public void Parse(string fileName)
         {
-            JSONReader = new StreamReader(fileName);
-            json = JSONReader.ReadToEnd();
-            JSONReader.Close();
-
             xml = new StringBuilder();
             xml.Clear();
 
+            fileObjects = new Stack<string>();
+            tabCount = 0;
+
+            using (JSONReader = new StreamReader(fileName))
+            {
+                json = JSONReader.ReadToEnd();
+                xml.AppendLine(String.Format("<?xml version=\"1.0\" encoding=\"{0}\"?>", JSONReader.CurrentEncoding.BodyName));
+            }
+
             json.Trim();
             if (json[0] == '{')
+            {
+                xml.AppendLine("<root>");
+                fileObjects.Push("root");
                 ParseObject(json, xml);
+                xml.AppendLine("</root>");
+            }
             if (json[0] == '[')
+            {
+                xml.AppendLine("<rootArray>");
+                fileObjects.Push("rootArray");
                 ParseArray(json, xml);
-                        
-            //xml.Append(json);
-
-            //while(i < json.Length)
-            //{
-            //    json = json.TrimStart();
-            //}
+                xml.AppendLine("</rootArray>");
+            }
         }
 
         //A method for parsing a JSON object
@@ -104,10 +111,11 @@ namespace JSON_to_XML
         //It almost duplicates the ParseObject method, gotta think how to get rid of that
         static int ParseArray(string str, StringBuilder destination)
         {
+            int curlyBrackets = 0, brackets = 0, lastValueStart = 0;
+            bool areQuotesOk = true;            
+
             tabCount++;
             str = str.Substring(1, str.Length - 2).Trim();
-            int curlyBrackets = 0, brackets = 0, lastValueStart = 0;
-            bool areQuotesOk = true;
 
             for (int i = 0; i < str.Length; i++)
             {
@@ -118,12 +126,12 @@ namespace JSON_to_XML
                         {
                             ApplyTabs(destination);
                             //element's opening tag
-                            destination.AppendFormat("<element>");
+                            destination.AppendFormat("<{0}Element>", fileObjects.Peek());
                             //parsing an array element's value
                             ParseValue(str.Substring(lastValueStart, i - lastValueStart).Trim(), destination);
                             lastValueStart = i + 1;
                             //element's closing tag
-                            destination.AppendFormat("</element>\n");
+                            destination.AppendFormat("</{0}Element>\n", fileObjects.Peek());
                         }
                         break;
                     case '[':
@@ -148,11 +156,11 @@ namespace JSON_to_XML
 
             ApplyTabs(destination);
             //element's opening tag
-            destination.AppendFormat("<element>");
+            destination.AppendFormat("<{0}Element>", fileObjects.Peek());
             //parsing an array element's value
             ParseValue(str.Substring(lastValueStart, str.Length - lastValueStart).Trim(), destination);
             //element's closing tag
-            destination.AppendFormat("</element>\n");
+            destination.AppendFormat("</{0}Element>\n", fileObjects.Peek());
 
             tabCount--;
             return 0;
