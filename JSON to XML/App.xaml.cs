@@ -22,31 +22,40 @@ namespace JSON_to_XML
         { get; set; }
 
         static string json;
+        static public string JSON { get { return json; } }
+
         static StringBuilder xml;
+        static public string XML { get { return xml.ToString(); } }
         
         static int tabCount = 0;
         //this is needed for elements' correct closing tags
-        static Stack<string> fileObjects;
+        static Stack<string> xmlNodeStack;
+        static string jsonEncoding;
+
+        static public void ReadJSONFromFile(string fileName)
+        {
+            using (JSONReader = new StreamReader(fileName))
+            {
+                json = JSONReader.ReadToEnd();
+                jsonEncoding = JSONReader.CurrentEncoding.BodyName;
+            }
+        }
 
         //Parsing the whole file
-        static public void Parse(string fileName)
+        static public void Parse()
         {
             xml = new StringBuilder();
             xml.Clear();
 
-            fileObjects = new Stack<string>();
+            xmlNodeStack = new Stack<string>();
             tabCount = 0;
 
-            using (JSONReader = new StreamReader(fileName))
-            {
-                json = JSONReader.ReadToEnd();
-                xml.AppendLine(String.Format("<?xml version=\"1.0\" encoding=\"{0}\"?>", JSONReader.CurrentEncoding.BodyName));
-            }
+            xml.AppendFormat("<?xml version=\"1.0\" encoding=\"{0}\"?>\n", jsonEncoding);
 
             json.Trim();
 
             xml.AppendLine("<root>");
-            fileObjects.Push("root");
+            xmlNodeStack.Push("root");
 
             if (json[0] == '{')
                 ParseObject(json, xml);
@@ -171,12 +180,12 @@ namespace JSON_to_XML
             string name = str.Substring(0, colonIndex).Trim().Trim('\"');
             ApplyTabs(destination);
             destination.AppendFormat("<{0}>", name);
-            fileObjects.Push(name);
+            xmlNodeStack.Push(name);
 
             //parsing the element value
             ParseValue(str.Substring(colonIndex + 1).Trim(), destination);
             //writing the closing tag
-            destination.AppendFormat("</{0}>\n", fileObjects.Pop());
+            destination.AppendFormat("</{0}>\n", xmlNodeStack.Pop());
 
             return 0;
         }

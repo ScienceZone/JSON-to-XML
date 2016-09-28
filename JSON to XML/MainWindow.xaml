@@ -5,10 +5,13 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:JSON_to_XML"
         mc:Ignorable="d"
-        Title="MainWindow" Height="350" Width="525">
+        Title="MainWindow" Height="350" Width="580.5" WindowStyle="ToolWindow">
     <Grid>
-        <Button x:Name="openJsonButton" Content="Open a JSON file" HorizontalAlignment="Left" Margin="10,10,0,0" VerticalAlignment="Top" Width="110" Click="openJsonButton_Click"/>
-        <Button x:Name="saveXmlButton" Content="Save to XML file" HorizontalAlignment="Left" Margin="125,10,0,0" VerticalAlignment="Top" Width="110" Click="saveXmlButton_Click"/>
+        <Button x:Name="openJsonButton" Content="Open a JSON file" Margin="10,5,452,0" Click="openJsonButton_Click" Height="25" VerticalAlignment="Top"/>
+        <Button x:Name="saveXmlButton" Content="Save XML to file" Margin="312,5,150,0" Click="saveXmlButton_Click" Height="25" VerticalAlignment="Top"/>
+        <TextBox x:Name="jsonTextBox" Margin="10,35,312,11" TextWrapping="Wrap" FontFamily="Courier New"/>
+        <TextBox x:Name="xmlTextBox" Margin="312,35,10,11" TextWrapping="Wrap" FontFamily="Courier New"/>
+        <Button x:Name="parseButton" Content="Parse" Margin="260,155,260,0" Click="parseButton_Click" Height="29" VerticalAlignment="Top"/>
 
     </Grid>
 </Window>

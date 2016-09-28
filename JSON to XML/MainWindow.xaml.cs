@@ -44,18 +44,39 @@ namespace JSON_to_XML
             saveXmlDlg.AddExtension = true;
             saveXmlDlg.CreatePrompt = true;
             saveXmlDlg.OverwritePrompt = true;
+
+
+            jsonTextBox.Text = String.Empty;
+            //will probably change this in future
+            jsonTextBox.IsReadOnly = true;
+            jsonTextBox.HorizontalScrollBarVisibility = ScrollBarVisibility.Visible;
+            jsonTextBox.VerticalScrollBarVisibility = ScrollBarVisibility.Visible;
+            xmlTextBox.Text = String.Empty;
+            xmlTextBox.IsReadOnly = true;
+            xmlTextBox.HorizontalScrollBarVisibility = ScrollBarVisibility.Auto;
+            xmlTextBox.VerticalScrollBarVisibility = ScrollBarVisibility.Auto;
         }
 
         private void openJsonButton_Click(object sender, RoutedEventArgs e)
         {
             if (openJsonDlg.ShowDialog() == true)
-                App.Parse(openJsonDlg.FileName);
+            {
+                App.ReadJSONFromFile(openJsonDlg.FileName);
+                jsonTextBox.Text = App.JSON;
+                //App.Parse(openJsonDlg.FileName);
+            }
         }
 
         private void saveXmlButton_Click(object sender, RoutedEventArgs e)
         {
             saveXmlDlg.ShowDialog();
             App.WriteXMLtoFile(saveXmlDlg.FileName);
+        }
+
+        private void parseButton_Click(object sender, RoutedEventArgs e)
+        {
+            App.Parse();
+            xmlTextBox.Text = App.XML;
         }
     }
 }
