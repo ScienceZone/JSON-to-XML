@@ -23,23 +23,28 @@ namespace JSON_to_XML
 
         static string json;
         static StringBuilder xml;
+
         static int tabCount = 0;
+        //this is needed for elements' correct closing tags
         static Stack<string> fileObjects = new Stack<string>();
-        //this is needed to know when we should write a closing tag
-        static bool isValue = false;
 
         //Parsing the whole file
         static public void Parse(string fileName)
         {
-            int i = 0;
-
             JSONReader = new StreamReader(fileName);
             json = JSONReader.ReadToEnd();
             JSONReader.Close();
 
             xml = new StringBuilder();
             xml.Clear();
-            xml.Append(json);
+
+            json.Trim();
+            if (json[0] == '{')
+                ParseObject(json, xml);
+            if (json[0] == '[')
+                ParseArray(json, xml);
+                        
+            //xml.Append(json);
 
             //while(i < json.Length)
             //{
@@ -49,34 +54,92 @@ namespace JSON_to_XML
 
         //A method for parsing a JSON object
         //Assuming the string starts with '{' and ends with '}'
-        //Should probably add object stack to save object names for handling closing tags
         static int ParseObject(string str, StringBuilder destination)
         {
-            str = str.Substring(1, str.Length - 1).Trim();
-            string[] pairs = str.Split(',');
+            str = str.Substring(1, str.Length - 2).Trim();
+            int curlyBrackets = 0, brackets = 0, lastPairStart = 0;
 
-            foreach (string pair in pairs)
+            for (int i = 0; i < str.Length; i++)
             {
-                ParsePair(pair.Trim(), destination);
-                //Must add writing into destination here
+                switch (str[i])
+                {
+                    case ',':
+                        if (curlyBrackets == 0 && brackets == 0)
+                        {
+                            ParsePair(str.Substring(lastPairStart, i - lastPairStart).Trim(), destination);
+                            lastPairStart = i + 1;
+                        }
+                        break;
+                    case '[':
+                        brackets++;
+                        break;
+                    case '{':
+                        curlyBrackets++;
+                        break;
+                    case ']':
+                        brackets--;
+                        break;
+                    case '}':
+                        curlyBrackets--;
+                        break;
+                    default:
+                        break;
+                }
             }
+
+            ParsePair(str.Substring(lastPairStart, str.Length - lastPairStart).Trim(), destination);
 
             return 0;
         }
 
         //A method for parsing a JSON object array
         //Assuming the string starts with '[' and ends with ']'
+        //It almost duplicates the ParseObject method, gotta think how to get rid of that
         static int ParseArray(string str, StringBuilder destination)
         {
-            str = str.Substring(1, str.Length - 1).Trim();
-            string[] elements = str.Split(',');
+            str = str.Substring(1, str.Length - 2).Trim();
+            int curlyBrackets = 0, brackets = 0, lastValueStart = 0;
 
-            foreach (string element in elements)
+            for (int i = 0; i < str.Length; i++)
             {
-                ParseValue(element.Trim(), destination);
-                //Must add writing into destination here
+                switch (str[i])
+                {
+                    case ',':
+                        if (curlyBrackets == 0 && brackets == 0)
+                        {
+                            //element's opening tag
+                            destination.AppendFormat("<element>");
+                            //parsing an array element's value
+                            ParseValue(str.Substring(lastValueStart, i - lastValueStart).Trim(), destination);
+                            lastValueStart = i + 1;
+                            //element's closing tag
+                            destination.AppendFormat("</element>\n");
+                        }
+                        break;
+                    case '[':
+                        brackets++;
+                        break;
+                    case '{':
+                        curlyBrackets++;
+                        break;
+                    case ']':
+                        brackets--;
+                        break;
+                    case '}':
+                        curlyBrackets--;
+                        break;
+                    default:
+                        break;
+                }
             }
-
+            
+            //element's opening tag
+            destination.AppendFormat("<element>");
+            //parsing an array element's value
+            ParseValue(str.Substring(lastValueStart, str.Length - lastValueStart).Trim(), destination);
+            //element's closing tag
+            destination.AppendFormat("</element>\n");
+            
             return 0;
         }
 
@@ -85,13 +148,16 @@ namespace JSON_to_XML
         {
             int colonIndex = str.IndexOf(':');
 
-            //writing the element name into destination
-            string name = str.Substring(0, colonIndex).Trim();
+            //writing the opening tag
+            string name = str.Substring(0, colonIndex).Trim().Trim('\"');
+            ApplyTabs(destination);
             destination.AppendFormat("<{0}>", name);
             fileObjects.Push(name);
 
             //parsing the element value
             ParseValue(str.Substring(colonIndex + 1).Trim(), destination);
+            //writing the closing tag
+            destination.AppendFormat("</{0}>\n", fileObjects.Pop());
 
             return 0;
         }
@@ -101,7 +167,7 @@ namespace JSON_to_XML
         {
             //less lines than if i used a switch block
             if (str[0] != '{' && str[0] != '[')
-                destination.Append(str);
+                destination.Append(str.Trim().Trim('\"'));
             else
             {
                 destination.AppendLine();
@@ -112,13 +178,11 @@ namespace JSON_to_XML
                     ParseObject(str, destination);
                 else
                     ParseArray(str, destination);
-                destination.AppendLine();
+                //destination.AppendLine();
 
                 tabCount--;
                 ApplyTabs(destination);
             }
-
-            destination.AppendFormat("</{0}>\n", fileObjects.Pop());
 
             return 0;
         }
