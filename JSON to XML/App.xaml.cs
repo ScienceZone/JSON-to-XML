@@ -21,7 +21,7 @@ namespace JSON_to_XML
         static StreamReader JSONReader
         { get; set; }
 
-        static string json;
+        static string json = string.Empty;
         static public string JSON { get { return json; } }
 
         static StringBuilder xml;

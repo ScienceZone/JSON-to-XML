@@ -5,22 +5,22 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:JSON_to_XML"
         mc:Ignorable="d"
-        Title="JSON to XML parser" Height="350" Width="602.5">
+        Title="JSON to XML parser" Height="350" Width="602.5" Icon="Images/JSON.png">
     <Grid>
         <Grid.RowDefinitions>
-            <RowDefinition Height="40"/>
+            <RowDefinition Height="20"/>
             <RowDefinition Height="*"/>
         </Grid.RowDefinitions>
         <Grid.ColumnDefinitions>
             <ColumnDefinition Width="*"/>
-            <ColumnDefinition Width="60"/>
             <ColumnDefinition Width="*"/>
         </Grid.ColumnDefinitions>
-        <Button Grid.Row="0" Grid.Column="0" x:Name="openJsonButton" Content="Open a JSON file" Margin="10,10,0,0" Click="openJsonButton_Click" Height="25" VerticalAlignment="Top" HorizontalAlignment="Left" Width="110"/>
-        <Button Grid.Row="0" Grid.Column="2" x:Name="saveXmlButton" Content="Save XML to file" Margin="5,10,0,0" Click="saveXmlButton_Click" Height="25" VerticalAlignment="Top" HorizontalAlignment="Left" Width="110"/>
+        <Menu x:Name="mainMenu" Grid.Row="0" IsMainMenu="True" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Grid.ColumnSpan="2" Margin="0,0,0,0">
+            <MenuItem Name="OpenJsonMenuItem" Header="Open JSON" Click="OpenJsonMenuItem_Click"/>
+            <MenuItem Name="SaveXmlMenuItem" Header="Save XML" Click="SaveXmlMenuItem_Click"/>
+            <MenuItem Name="ParseMenuItem" Header="Parse" Click="ParseMenuItem_Click"/>
+        </Menu>
         <TextBox Grid.Row="1" Grid.Column="0" x:Name="jsonTextBox" Margin="10,5,5,10" TextWrapping="Wrap" FontFamily="Courier New"/>
-        <TextBox Grid.Row="1" Grid.Column="2" x:Name="xmlTextBox" Margin="5,5,10,10" TextWrapping="Wrap" FontFamily="Courier New"/>
-        <Button Grid.Row="1" Grid.Column="1" x:Name="parseButton" Content="Parse" Margin="5" Click="parseButton_Click" Height="30" VerticalAlignment="Center"/>
-
+        <TextBox Grid.Row="1" Grid.Column="1" x:Name="xmlTextBox" Margin="5,5,10,10" TextWrapping="Wrap" FontFamily="Courier New"/>
     </Grid>
 </Window>

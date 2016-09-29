@@ -24,6 +24,8 @@ namespace JSON_to_XML
     {
         OpenFileDialog openJsonDlg;
         SaveFileDialog saveXmlDlg;
+        //a flag for checking if we opened a new JSON file
+        bool isJsonChanged;
 
         public MainWindow()
         {
@@ -36,6 +38,7 @@ namespace JSON_to_XML
             openJsonDlg.CheckFileExists = true;
             openJsonDlg.CheckPathExists = true;
             openJsonDlg.Multiselect = false;
+            openJsonDlg.Title = "Select a JSON file...";
 
             saveXmlDlg = new SaveFileDialog();
 
@@ -44,6 +47,7 @@ namespace JSON_to_XML
             saveXmlDlg.AddExtension = true;
             saveXmlDlg.CreatePrompt = true;
             saveXmlDlg.OverwritePrompt = true;
+            saveXmlDlg.Title = "Choose XML file destination...";
 
 
             jsonTextBox.Text = String.Empty;
@@ -55,28 +59,37 @@ namespace JSON_to_XML
             xmlTextBox.IsReadOnly = true;
             xmlTextBox.HorizontalScrollBarVisibility = ScrollBarVisibility.Auto;
             xmlTextBox.VerticalScrollBarVisibility = ScrollBarVisibility.Auto;
+            
+            isJsonChanged = false;
         }
 
-        private void openJsonButton_Click(object sender, RoutedEventArgs e)
+        private void OpenJsonMenuItem_Click(object sender, RoutedEventArgs e)
         {
             if (openJsonDlg.ShowDialog() == true)
             {
                 App.ReadJSONFromFile(openJsonDlg.FileName);
                 jsonTextBox.Text = App.JSON;
-                //App.Parse(openJsonDlg.FileName);
+                isJsonChanged = true;
             }
         }
 
-        private void saveXmlButton_Click(object sender, RoutedEventArgs e)
+        private void SaveXmlMenuItem_Click(object sender, RoutedEventArgs e)
         {
-            saveXmlDlg.ShowDialog();
-            App.WriteXMLtoFile(saveXmlDlg.FileName);
+            if (xmlTextBox.Text.CompareTo(string.Empty) != 0 && saveXmlDlg.ShowDialog() == true)
+                App.WriteXMLtoFile(saveXmlDlg.FileName);
         }
 
-        private void parseButton_Click(object sender, RoutedEventArgs e)
+        private void ParseMenuItem_Click(object sender, RoutedEventArgs e)
         {
-            App.Parse();
-            xmlTextBox.Text = App.XML;
+            if (App.JSON.Length == 0)
+                MessageBox.Show("You haven't opened any JSON file!", "Error");
+            //no need to parse the old JSON again
+            else if (!isJsonChanged)
+            {
+                App.Parse();
+                xmlTextBox.Text = App.XML;
+                isJsonChanged = false;
+            }
         }
     }
 }
