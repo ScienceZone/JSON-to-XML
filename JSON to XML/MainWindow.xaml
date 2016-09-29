@@ -5,7 +5,7 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:JSON_to_XML"
         mc:Ignorable="d"
-        Title="JSON to XML parser" Height="350" Width="602.5" Icon="Images/JSON.png">
+        Title="JSON to XML parser" MinHeight="480" MinWidth="640" Icon="Images/JSON.png">
     <Grid>
         <Grid.RowDefinitions>
             <RowDefinition Height="20"/>
@@ -21,8 +21,8 @@
             <MenuItem Name="SaveXmlMenuItem" Header="Save XML" Click="SaveXmlMenuItem_Click"/>
             <MenuItem Name="ParseMenuItem" Header="Parse" Click="ParseMenuItem_Click"/>
         </Menu>
-        <TextBox Grid.Row="1" Grid.Column="0" x:Name="jsonTextBox" Margin="10,5,5,10" TextWrapping="Wrap" FontFamily="Courier New"/>
-        <TextBox Grid.Row="1" Grid.Column="1" x:Name="xmlTextBox" Margin="5,5,10,10" TextWrapping="Wrap" FontFamily="Courier New"/>
+        <TextBox Grid.Row="1" Grid.Column="0" x:Name="jsonTextBox" Margin="10,10,5,10" TextWrapping="Wrap" FontFamily="Courier New"/>
+        <TextBox Grid.Row="1" Grid.Column="1" x:Name="xmlTextBox" Margin="5,10,10,10" TextWrapping="Wrap" FontFamily="Courier New"/>
         <StatusBar Grid.Row="2" Grid.ColumnSpan="2">
             <TextBlock Name="statusTextBlock" Text="Click &quot;Open JSON&quot; button to start"/>
         </StatusBar>
