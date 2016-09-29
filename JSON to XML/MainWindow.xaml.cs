@@ -61,6 +61,7 @@ namespace JSON_to_XML
             xmlTextBox.VerticalScrollBarVisibility = ScrollBarVisibility.Auto;
             
             isJsonChanged = false;
+            
         }
 
         private void OpenJsonMenuItem_Click(object sender, RoutedEventArgs e)
@@ -70,26 +71,38 @@ namespace JSON_to_XML
                 App.ReadJSONFromFile(openJsonDlg.FileName);
                 jsonTextBox.Text = App.JSON;
                 isJsonChanged = true;
+                statusTextBlock.Text = openJsonDlg.SafeFileName + " was successfully opened";
             }
+            else
+                statusTextBlock.Text = string.Empty;
         }
 
         private void SaveXmlMenuItem_Click(object sender, RoutedEventArgs e)
         {
-            if (xmlTextBox.Text.CompareTo(string.Empty) != 0 && saveXmlDlg.ShowDialog() == true)
+            if (xmlTextBox.Text.CompareTo(string.Empty) == 0)
+                statusTextBlock.Text = "There's nothing to save";
+            else if (saveXmlDlg.ShowDialog() == true)
+            {
                 App.WriteXMLtoFile(saveXmlDlg.FileName);
+                statusTextBlock.Text = "XML document was succesfully saved into " + saveXmlDlg.SafeFileName;
+            }
         }
 
         private void ParseMenuItem_Click(object sender, RoutedEventArgs e)
         {
+            statusTextBlock.Text = string.Empty;
             if (App.JSON.Length == 0)
-                MessageBox.Show("You haven't opened any JSON file!", "Error");
+                statusTextBlock.Text = "There's nothing to parse";
             //no need to parse the old JSON again
-            else if (!isJsonChanged)
+            else if (isJsonChanged)
             {
                 App.Parse();
                 xmlTextBox.Text = App.XML;
                 isJsonChanged = false;
+                statusTextBlock.Text = openJsonDlg.SafeFileName + " was succesfully parsed into an XML document";
             }
+            else
+                statusTextBlock.Text = "Open a new JSON file";
         }
     }
 }

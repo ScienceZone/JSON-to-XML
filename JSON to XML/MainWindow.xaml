@@ -10,6 +10,7 @@
         <Grid.RowDefinitions>
             <RowDefinition Height="20"/>
             <RowDefinition Height="*"/>
+            <RowDefinition Height="22"/>
         </Grid.RowDefinitions>
         <Grid.ColumnDefinitions>
             <ColumnDefinition Width="*"/>
@@ -22,5 +23,8 @@
         </Menu>
         <TextBox Grid.Row="1" Grid.Column="0" x:Name="jsonTextBox" Margin="10,5,5,10" TextWrapping="Wrap" FontFamily="Courier New"/>
         <TextBox Grid.Row="1" Grid.Column="1" x:Name="xmlTextBox" Margin="5,5,10,10" TextWrapping="Wrap" FontFamily="Courier New"/>
+        <StatusBar Grid.Row="2" Grid.ColumnSpan="2">
+            <TextBlock Name="statusTextBlock" Text="Click &quot;Open JSON&quot; button to start"/>
+        </StatusBar>
     </Grid>
 </Window>
