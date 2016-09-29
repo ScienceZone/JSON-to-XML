@@ -49,8 +49,8 @@ namespace JSON_to_XML
             jsonTextBox.Text = String.Empty;
             //will probably change this in future
             jsonTextBox.IsReadOnly = true;
-            jsonTextBox.HorizontalScrollBarVisibility = ScrollBarVisibility.Visible;
-            jsonTextBox.VerticalScrollBarVisibility = ScrollBarVisibility.Visible;
+            jsonTextBox.HorizontalScrollBarVisibility = ScrollBarVisibility.Auto;
+            jsonTextBox.VerticalScrollBarVisibility = ScrollBarVisibility.Auto;
             xmlTextBox.Text = String.Empty;
             xmlTextBox.IsReadOnly = true;
             xmlTextBox.HorizontalScrollBarVisibility = ScrollBarVisibility.Auto;
