@@ -79,12 +79,19 @@ namespace JSON_to_XML
         {
             xmlDoc = new XmlDocument();                                    
             json.Trim();            
-            XmlNode root = xmlDoc.CreateElement(RootElementName);            
+            XmlNode root = xmlDoc.CreateElement(RootElementName);
 
-            if (json[0] == '{')
-                ParseObject(json, root);
-            if (json[0] == '[')
-                ParseArray(json, root);
+            try
+            {
+                if (json[0] == '{')
+                    ParseObject(json, root);
+                if (json[0] == '[')
+                    ParseArray(json, root);
+            }
+            catch (ArgumentException e)
+            {
+                throw e;
+            }
 
             xmlDoc.AppendChild(root);
         }
@@ -106,7 +113,14 @@ namespace JSON_to_XML
                     case ',':
                         if (curlyBrackets == 0 && brackets == 0 && areQuotesOk)
                         {
-                            ParsePair(jsonObject.Substring(lastPairStart, i - lastPairStart).Trim(), currentNode);
+                            try
+                            {
+                                ParsePair(jsonObject.Substring(lastPairStart, i - lastPairStart).Trim(), currentNode);
+                            }
+                            catch (ArgumentException e)
+                            {
+                                throw e;
+                            }
                             lastPairStart = i + 1;
                         }
                         break;
@@ -130,7 +144,14 @@ namespace JSON_to_XML
                 }
             }
 
-            ParsePair(jsonObject.Substring(lastPairStart, jsonObject.Length - lastPairStart).Trim(), currentNode);
+            try
+            {
+                ParsePair(jsonObject.Substring(lastPairStart, jsonObject.Length - lastPairStart).Trim(), currentNode);
+            }
+            catch (ArgumentException e)
+            {
+                throw e;
+            }
         }
 
         /// <summary>
@@ -140,7 +161,6 @@ namespace JSON_to_XML
         /// Assuming that it starts with '[' and ends with ']'. </param>
         /// <param name="parent"></param>
         /// <returns></returns>
-        //
         //It almost duplicates the ParseObject method, gotta think how to get rid of that
         static void ParseArray(string jsonArray, XmlNode parent)
         {
@@ -156,8 +176,15 @@ namespace JSON_to_XML
                     case ',':
                         if (curlyBrackets == 0 && brackets == 0 && areQuotesOk)
                         {
-                            XmlNode node = xmlDoc.CreateElement("element");                            
-                            ParseValue(jsonArray.Substring(lastValueStart, i - lastValueStart).Trim(), node);
+                            XmlNode node = xmlDoc.CreateElement("element");
+                            try
+                            {
+                                ParseValue(jsonArray.Substring(lastValueStart, i - lastValueStart).Trim(), node);
+                            }
+                            catch (ArgumentException e)
+                            {
+                                throw e;
+                            }
                             lastValueStart = i + 1;
                             parent.AppendChild(node);
                         }
@@ -182,8 +209,15 @@ namespace JSON_to_XML
                 }
             }
 
-            XmlNode lastNode = xmlDoc.CreateElement("element");            
-            ParseValue(jsonArray.Substring(lastValueStart, jsonArray.Length - lastValueStart).Trim(), lastNode);
+            XmlNode lastNode = xmlDoc.CreateElement("element");
+            try
+            {
+                ParseValue(jsonArray.Substring(lastValueStart, jsonArray.Length - lastValueStart).Trim(), lastNode);
+            }
+            catch (ArgumentException e)
+            {
+                throw e;
+            }
             parent.AppendChild(lastNode);
         }
 
@@ -192,19 +226,31 @@ namespace JSON_to_XML
         ///</summary>
         static void ParsePair(string jsonPair, XmlNode parentNode)
         {
-            //bool areQuotesOk = true;
-            ////what if there's a colon inside an object's key name?
-            //int colonIndex = 0;
-            //while (colonIndex < str.Length - 1 && str[colonIndex] != ':' && areQuotesOk)
-            //{
-            //    colonIndex++;
-            //}
-            //if (colonIndex == str.Length - 1)
-            //    throw new ArgumentException("Invalid string representation of JSON pair", "str");
+            bool areQuotesOk = true;
+            //what if there's a colon inside an object's key name?
+            int colonIndex = 0;
+            while (colonIndex < jsonPair.Length - 1 && jsonPair[colonIndex] != ':' && areQuotesOk)
+            {
+                if (jsonPair[colonIndex] == '"')
+                    areQuotesOk = !areQuotesOk;
+                colonIndex++;
+            }
+            
+            if(colonIndex == jsonPair.Length - 1)
+                throw new ArgumentException(string.Format("Pair: [{0}] has no value.", jsonPair), "str");
 
-            int colonIndex = jsonPair.IndexOf(':');
-            XmlNode node = xmlDoc.CreateElement(jsonPair.Substring(0, colonIndex).Trim().Trim('\"'));
-            ParseValue(jsonPair.Substring(colonIndex + 1).Trim(), node);
+            string name = jsonPair.Substring(0, colonIndex).Trim().Trim('\"');
+            if (name.Length == 0)
+                throw new ArgumentException(string.Format("Pair [{0}] has no name.", jsonPair), "str");
+            XmlNode node = xmlDoc.CreateElement(name);
+            try
+            {
+                ParseValue(jsonPair.Substring(colonIndex + 1).Trim(), node);
+            }
+            catch (ArgumentException e)
+            {
+                throw e;
+            }
             parentNode.AppendChild(node);
         }
 
@@ -220,10 +266,17 @@ namespace JSON_to_XML
             }
             else
             {
-                if (jsonValue[0] == '{')
-                    ParseObject(jsonValue, currentNode);
-                else
-                    ParseArray(jsonValue, currentNode);
+                try
+                {
+                    if (jsonValue[0] == '{')
+                        ParseObject(jsonValue, currentNode);
+                    else
+                        ParseArray(jsonValue, currentNode);
+                }
+                catch (ArgumentException e)
+                {
+                    throw e;
+                }
             }
         }
 

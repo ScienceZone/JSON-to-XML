@@ -96,7 +96,15 @@ namespace JSON_to_XML
             //no need to parse the same JSON file again
             else if (isJsonChanged)
             {
-                App.Parse();
+                try
+                {
+                    App.Parse();
+                }
+                catch (ArgumentException ex)
+                {
+                    statusTextBlock.Text = "Error: " + ex.Message + " Parsing was terminated";
+                    return;
+                }
                 xmlTextBox.Text = App.Xml;
                 isJsonChanged = false;
                 statusTextBlock.Text = openJsonDlg.SafeFileName + " was succesfully parsed into an XML document";
