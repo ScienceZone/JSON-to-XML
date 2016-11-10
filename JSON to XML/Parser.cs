@@ -29,18 +29,11 @@ namespace JSON_to_XML
             XmlNode root = xml.CreateElement(RootElementName);
 
             json = json.Trim();
-
-            try
-            {
-                if (json[0] == '{')
-                    ParseObject(json, root);
-                if (json[0] == '[')
-                    ParseArray(json, root);
-            }
-            catch (ArgumentException e)
-            {
-                throw e;
-            }
+            
+            if (json[0] == '{')
+                ParseObject(json, root);
+            if (json[0] == '[')
+                ParseArray(json, root);
 
             xml.AppendChild(root);
             return xml;
@@ -63,14 +56,7 @@ namespace JSON_to_XML
                     case ',':
                         if (curlyBrackets == 0 && brackets == 0 && areQuotesOk)
                         {
-                            try
-                            {
-                                ParsePair(jsonObject.Substring(lastPairStart, i - lastPairStart).Trim(), currentNode);
-                            }
-                            catch (ArgumentException e)
-                            {
-                                throw e;
-                            }
+                            ParsePair(jsonObject.Substring(lastPairStart, i - lastPairStart).Trim(), currentNode);
                             lastPairStart = i + 1;
                         }
                         break;
@@ -93,15 +79,8 @@ namespace JSON_to_XML
                         break;
                 }
             }
-
-            try
-            {
-                ParsePair(jsonObject.Substring(lastPairStart, jsonObject.Length - lastPairStart).Trim(), currentNode);
-            }
-            catch (ArgumentException e)
-            {
-                throw e;
-            }
+            
+            ParsePair(jsonObject.Substring(lastPairStart, jsonObject.Length - lastPairStart).Trim(), currentNode);
         }
 
         /// <summary>
@@ -127,14 +106,7 @@ namespace JSON_to_XML
                         if (curlyBrackets == 0 && brackets == 0 && areQuotesOk)
                         {
                             XmlNode node = parent.OwnerDocument.CreateElement("element");
-                            try
-                            {
-                                ParseValue(jsonArray.Substring(lastValueStart, i - lastValueStart).Trim(), node);
-                            }
-                            catch (ArgumentException e)
-                            {
-                                throw e;
-                            }
+                            ParseValue(jsonArray.Substring(lastValueStart, i - lastValueStart).Trim(), node);
                             lastValueStart = i + 1;
                             parent.AppendChild(node);
                         }
@@ -160,15 +132,7 @@ namespace JSON_to_XML
             }
 
             XmlNode lastNode = parent.OwnerDocument.CreateElement("element");
-            try
-            {
-                ParseValue(jsonArray.Substring(lastValueStart, jsonArray.Length - lastValueStart).Trim(), lastNode);
-            }
-            catch (ArgumentException e)
-            {
-                throw e;
-            }
-            parent.AppendChild(lastNode);
+            ParseValue(jsonArray.Substring(lastValueStart, jsonArray.Length - lastValueStart).Trim(), lastNode);
         }
 
         ///<summary>
@@ -192,14 +156,7 @@ namespace JSON_to_XML
             if (name.Length == 0)
                 throw new ArgumentException(string.Format("Pair [{0}] has no name.", jsonPair), "str");
             XmlNode node = parentNode.OwnerDocument.CreateElement(name);
-            try
-            {
-                ParseValue(jsonPair.Substring(colonIndex + 1).Trim(), node);
-            }
-            catch (ArgumentException e)
-            {
-                throw e;
-            }
+            ParseValue(jsonPair.Substring(colonIndex + 1).Trim(), node);
             parentNode.AppendChild(node);
         }
 
@@ -215,17 +172,10 @@ namespace JSON_to_XML
             }
             else
             {
-                try
-                {
-                    if (jsonValue[0] == '{')
-                        ParseObject(jsonValue, currentNode);
-                    else
-                        ParseArray(jsonValue, currentNode);
-                }
-                catch (ArgumentException e)
-                {
-                    throw e;
-                }
+                if (jsonValue[0] == '{')
+                    ParseObject(jsonValue, currentNode);
+                else
+                    ParseArray(jsonValue, currentNode);
             }
         }
     }
