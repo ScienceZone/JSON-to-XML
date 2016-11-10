@@ -84,7 +84,7 @@ namespace JSON_to_XML
         ///A method for parsing a JSON object.
         ///Assuming the string starts with '{' and ends with '}'
         ///</summary>
-        static int ParseObject(string jsonObject, XmlNode currentNode)
+        static void ParseObject(string jsonObject, XmlNode currentNode)
         {
             jsonObject = jsonObject.Substring(1, jsonObject.Length - 2).Trim();
             int curlyBrackets = 0, brackets = 0, lastPairStart = 0;
@@ -122,8 +122,6 @@ namespace JSON_to_XML
             }
 
             ParsePair(jsonObject.Substring(lastPairStart, jsonObject.Length - lastPairStart).Trim(), currentNode);
-            
-            return 0;
         }
 
         /// <summary>
@@ -135,7 +133,7 @@ namespace JSON_to_XML
         /// <returns></returns>
         //
         //It almost duplicates the ParseObject method, gotta think how to get rid of that
-        static int ParseArray(string jsonArray, XmlNode parent)
+        static void ParseArray(string jsonArray, XmlNode parent)
         {
             int curlyBrackets = 0, brackets = 0, lastValueStart = 0;
             bool areQuotesOk = true;            
@@ -178,12 +176,10 @@ namespace JSON_to_XML
             XmlNode lastNode = xmlDoc.CreateElement("element");            
             ParseValue(jsonArray.Substring(lastValueStart, jsonArray.Length - lastValueStart).Trim(), lastNode);
             parent.AppendChild(lastNode);
-
-            return 0;
         }
 
         //A method for parsing name:value pair inside an object
-        static int ParsePair(string jsonPair, XmlNode parentNode)
+        static void ParsePair(string jsonPair, XmlNode parentNode)
         {
             //bool areQuotesOk = true;
             ////what if there's a colon inside an object's key name?
@@ -199,12 +195,10 @@ namespace JSON_to_XML
             XmlNode node = xmlDoc.CreateElement(jsonPair.Substring(0, colonIndex).Trim().Trim('\"'));
             ParseValue(jsonPair.Substring(colonIndex + 1).Trim(), node);
             parentNode.AppendChild(node);
-
-            return 0;
         }
 
         //A method for parsing values of name:value pairs and array elements
-        static int ParseValue(string jsonValue, XmlNode currentNode)
+        static void ParseValue(string jsonValue, XmlNode currentNode)
         {
             //less lines than if i used a switch block
             if (jsonValue[0] != '{' && jsonValue[0] != '[')
@@ -218,8 +212,6 @@ namespace JSON_to_XML
                 else
                     ParseArray(jsonValue, currentNode);
             }
-
-            return 0;
         }
 
         public static void WriteXMLtoFile(string fileName)
