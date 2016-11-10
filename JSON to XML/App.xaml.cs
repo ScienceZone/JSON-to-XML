@@ -19,6 +19,9 @@ namespace JSON_to_XML
         static string json;
         static public string Json { get { return json; } }
         
+        /// <summary>
+        /// Gets the text representation of the current XML document.
+        /// </summary>
         static public string Xml
         {
             get
@@ -56,6 +59,10 @@ namespace JSON_to_XML
             RootElementName = "root";
         }
 
+        /// <summary>
+        /// Reads contents of the specified JSON file.
+        /// </summary>
+        /// <param name="fileName">Name of an input JSON file</param>
         static public void ReadJSONFromFile(string fileName)
         {
             using (StreamReader jsonReader = new StreamReader(fileName))
@@ -65,7 +72,9 @@ namespace JSON_to_XML
             }
         }
 
-        //Parsing the whole file
+        /// <summary>
+        /// Parses current JSON file into an XML document.
+        /// </summary>
         static public void Parse()
         {
             xmlDoc = new XmlDocument();                                    
@@ -81,7 +90,7 @@ namespace JSON_to_XML
         }
 
         ///<summary>
-        ///A method for parsing a JSON object.
+        ///Parses a JSON object.
         ///Assuming the string starts with '{' and ends with '}'
         ///</summary>
         static void ParseObject(string jsonObject, XmlNode currentNode)
@@ -125,7 +134,7 @@ namespace JSON_to_XML
         }
 
         /// <summary>
-        /// A method for parsing a JSON array.
+        /// Parses a JSON array.
         /// </summary>
         /// <param name="jsonArray">A string that represents a JSON array.
         /// Assuming that it starts with '[' and ends with ']'. </param>
@@ -178,7 +187,9 @@ namespace JSON_to_XML
             parent.AppendChild(lastNode);
         }
 
-        //A method for parsing name:value pair inside an object
+        ///<summary>
+        ///Parses a name:value pair within a JSON object.
+        ///</summary>
         static void ParsePair(string jsonPair, XmlNode parentNode)
         {
             //bool areQuotesOk = true;
@@ -197,7 +208,9 @@ namespace JSON_to_XML
             parentNode.AppendChild(node);
         }
 
-        //A method for parsing values of name:value pairs and array elements
+        ///<summary>
+        ///Parses the value of a JSON name:value pair or a JSON array element.
+        ///</summary>
         static void ParseValue(string jsonValue, XmlNode currentNode)
         {
             //less lines than if i used a switch block
@@ -214,6 +227,10 @@ namespace JSON_to_XML
             }
         }
 
+        /// <summary>
+        /// Writes resulting XML to a file with the specified name.
+        /// </summary>
+        /// <param name="fileName">Name of an output XML file</param>
         public static void WriteXMLtoFile(string fileName)
         {
             using (xmlWriter = XmlWriter.Create(fileName, xmlSettings))
