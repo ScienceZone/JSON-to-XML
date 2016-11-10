@@ -24,7 +24,7 @@ namespace JSON_to_XML
     {
         OpenFileDialog openJsonDlg;
         SaveFileDialog saveXmlDlg;
-        //a flag for checking if we opened a new JSON file
+        //a flag for checking if we opened a new JSON file or the same one as previous
         bool isJsonChanged;
 
         public MainWindow()
@@ -69,7 +69,7 @@ namespace JSON_to_XML
             if (openJsonDlg.ShowDialog() == true)
             {
                 App.ReadJSONFromFile(openJsonDlg.FileName);
-                jsonTextBox.Text = App.JSON;
+                jsonTextBox.Text = App.Json;
                 isJsonChanged = true;
                 statusTextBlock.Text = openJsonDlg.SafeFileName + " was successfully opened";
             }
@@ -91,13 +91,13 @@ namespace JSON_to_XML
         private void ParseMenuItem_Click(object sender, RoutedEventArgs e)
         {
             statusTextBlock.Text = string.Empty;
-            if (App.JSON.Length == 0)
+            if (App.Json.Length == 0)
                 statusTextBlock.Text = "There's nothing to parse";
-            //no need to parse the old JSON again
+            //no need to parse the same JSON file again
             else if (isJsonChanged)
             {
                 App.Parse();
-                xmlTextBox.Text = App.XML;
+                xmlTextBox.Text = App.Xml;
                 isJsonChanged = false;
                 statusTextBlock.Text = openJsonDlg.SafeFileName + " was succesfully parsed into an XML document";
             }
