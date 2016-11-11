@@ -24,8 +24,6 @@ namespace JSON_to_XML
     {
         OpenFileDialog openJsonDlg;
         SaveFileDialog saveXmlDlg;
-        //a flag for checking if we opened a new JSON file or the same one as previous
-        bool isJsonChanged;
 
         public MainWindow()
         {
@@ -52,16 +50,13 @@ namespace JSON_to_XML
 
             jsonTextBox.Text = String.Empty;
             //will probably change this in future
-            jsonTextBox.IsReadOnly = true;
+            //jsonTextBox.IsReadOnly = true;
             jsonTextBox.HorizontalScrollBarVisibility = ScrollBarVisibility.Auto;
             jsonTextBox.VerticalScrollBarVisibility = ScrollBarVisibility.Auto;
             xmlTextBox.Text = String.Empty;
             xmlTextBox.IsReadOnly = true;
             xmlTextBox.HorizontalScrollBarVisibility = ScrollBarVisibility.Auto;
             xmlTextBox.VerticalScrollBarVisibility = ScrollBarVisibility.Auto;
-            
-            isJsonChanged = false;
-            
         }
 
         private void OpenJsonMenuItem_Click(object sender, RoutedEventArgs e)
@@ -69,7 +64,6 @@ namespace JSON_to_XML
             if (openJsonDlg.ShowDialog() == true)
             {
                 jsonTextBox.Text = JXHelper.ReadJSONFromFile(openJsonDlg.FileName);
-                isJsonChanged = true;
                 statusTextBlock.Text = openJsonDlg.SafeFileName + " was successfully opened";
             }
             else
@@ -93,10 +87,10 @@ namespace JSON_to_XML
         private void ParseMenuItem_Click(object sender, RoutedEventArgs e)
         {
             statusTextBlock.Text = string.Empty;
-            if (jsonTextBox.Text.Length == 0)
+            if (jsonTextBox.Text.CompareTo(string.Empty) == 0)
                 statusTextBlock.Text = "There's nothing to parse";
             //no need to parse the same JSON file again
-            else if (isJsonChanged)
+            else
             {
                 try
                 {
@@ -108,11 +102,8 @@ namespace JSON_to_XML
                     return;
                 }
                 xmlTextBox.Text = Parser.LastXmlResult.ToText();
-                isJsonChanged = false;
                 statusTextBlock.Text = openJsonDlg.SafeFileName + " was succesfully parsed into an XML document";
             }
-            else
-                statusTextBlock.Text = "Open a new JSON file";
         }
     }
 }
