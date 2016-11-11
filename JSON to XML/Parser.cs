@@ -7,15 +7,19 @@ using System.Xml;
 
 namespace JSON_to_XML
 {
-    class Parser
+    static class Parser
     {
         public static XmlWriterSettings XmlSettings
         { get; set; }
 
         public static string RootElementName { get; set; }
+
+        public static XmlDocument LastXmlResult { get; private set; }
         
         static Parser()
         {
+            //LastXmlResult = new XmlDocument();
+
             XmlSettings = new XmlWriterSettings();
             XmlSettings.Indent = true;
             XmlSettings.IndentChars = "\t";
@@ -23,20 +27,26 @@ namespace JSON_to_XML
             RootElementName = "root";
         }
 
+        /// <summary>
+        /// Parses a JSON document represented in json string.
+        /// </summary>
+        /// <param name="json">Text represetation of a JSON document to be parsed</param>
+        /// <returns></returns>
         public static XmlDocument JsonToXml(string json)
         {
-            XmlDocument xml = new XmlDocument();
-            XmlNode root = xml.CreateElement(RootElementName);
+            LastXmlResult = new XmlDocument();
+            XmlNode root = LastXmlResult.CreateElement(RootElementName);
 
             json = json.Trim();
+            //INSER JSON VALIDATION HERE
             
             if (json[0] == '{')
                 ParseObject(json, root);
             if (json[0] == '[')
                 ParseArray(json, root);
 
-            xml.AppendChild(root);
-            return xml;
+            LastXmlResult.AppendChild(root);
+            return LastXmlResult;
         }
 
         ///<summary>
@@ -88,10 +98,10 @@ namespace JSON_to_XML
         /// </summary>
         /// <param name="jsonArray">A string that represents a JSON array.
         /// Assuming that it starts with '[' and ends with ']'. </param>
-        /// <param name="parent"></param>
+        /// <param name="parentNode"></param>
         /// <returns></returns>
         //It almost duplicates the ParseObject method, gotta think how to get rid of that
-        static void ParseArray(string jsonArray, XmlNode parent)
+        static void ParseArray(string jsonArray, XmlNode parentNode)
         {
             int curlyBrackets = 0, brackets = 0, lastValueStart = 0;
             bool areQuotesOk = true;
@@ -105,10 +115,10 @@ namespace JSON_to_XML
                     case ',':
                         if (curlyBrackets == 0 && brackets == 0 && areQuotesOk)
                         {
-                            XmlNode node = parent.OwnerDocument.CreateElement("element");
+                            XmlNode node = parentNode.OwnerDocument.CreateElement("element");
                             ParseValue(jsonArray.Substring(lastValueStart, i - lastValueStart).Trim(), node);
                             lastValueStart = i + 1;
-                            parent.AppendChild(node);
+                            parentNode.AppendChild(node);
                         }
                         break;
                     case '[':
@@ -131,8 +141,9 @@ namespace JSON_to_XML
                 }
             }
 
-            XmlNode lastNode = parent.OwnerDocument.CreateElement("element");
+            XmlNode lastNode = parentNode.OwnerDocument.CreateElement("element");
             ParseValue(jsonArray.Substring(lastValueStart, jsonArray.Length - lastValueStart).Trim(), lastNode);
+            parentNode.AppendChild(lastNode);
         }
 
         ///<summary>

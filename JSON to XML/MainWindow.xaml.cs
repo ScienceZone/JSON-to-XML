@@ -68,13 +68,12 @@ namespace JSON_to_XML
         {
             if (openJsonDlg.ShowDialog() == true)
             {
-                App.ReadJSONFromFile(openJsonDlg.FileName);
-                jsonTextBox.Text = App.Json;
+                jsonTextBox.Text = JXHelper.ReadJSONFromFile(openJsonDlg.FileName);
                 isJsonChanged = true;
                 statusTextBlock.Text = openJsonDlg.SafeFileName + " was successfully opened";
             }
             else
-                statusTextBlock.Text = string.Empty;
+                statusTextBlock.Text = "No JSON file was opened";
         }
 
         private void SaveXmlMenuItem_Click(object sender, RoutedEventArgs e)
@@ -83,7 +82,10 @@ namespace JSON_to_XML
                 statusTextBlock.Text = "There's nothing to save";
             else if (saveXmlDlg.ShowDialog() == true)
             {
-                App.WriteXMLtoFile(saveXmlDlg.FileName);
+                using (System.Xml.XmlWriter xmlWriter = System.Xml.XmlWriter.Create(saveXmlDlg.FileName, Parser.XmlSettings))
+                {
+                    Parser.LastXmlResult.WriteTo(xmlWriter);
+                }
                 statusTextBlock.Text = "XML document was succesfully saved into " + saveXmlDlg.SafeFileName;
             }
         }
@@ -91,21 +93,21 @@ namespace JSON_to_XML
         private void ParseMenuItem_Click(object sender, RoutedEventArgs e)
         {
             statusTextBlock.Text = string.Empty;
-            if (App.Json.Length == 0)
+            if (jsonTextBox.Text.Length == 0)
                 statusTextBlock.Text = "There's nothing to parse";
             //no need to parse the same JSON file again
             else if (isJsonChanged)
             {
                 try
                 {
-                    App.Parse();
+                    Parser.JsonToXml(jsonTextBox.Text);
                 }
                 catch (ArgumentException ex)
                 {
                     statusTextBlock.Text = "Error: " + ex.Message + " Parsing was terminated";
                     return;
                 }
-                xmlTextBox.Text = App.Xml;
+                xmlTextBox.Text = Parser.LastXmlResult.ToText();
                 isJsonChanged = false;
                 statusTextBlock.Text = openJsonDlg.SafeFileName + " was succesfully parsed into an XML document";
             }
