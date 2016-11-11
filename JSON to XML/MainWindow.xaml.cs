@@ -51,6 +51,8 @@ namespace JSON_to_XML
             jsonTextBox.Text = String.Empty;
             //will probably change this in future
             //jsonTextBox.IsReadOnly = true;
+            jsonTextBox.AcceptsTab = true;
+            jsonTextBox.AcceptsReturn = true;
             jsonTextBox.HorizontalScrollBarVisibility = ScrollBarVisibility.Auto;
             jsonTextBox.VerticalScrollBarVisibility = ScrollBarVisibility.Auto;
             xmlTextBox.Text = String.Empty;
@@ -102,7 +104,7 @@ namespace JSON_to_XML
                     return;
                 }
                 xmlTextBox.Text = Parser.LastXmlResult.ToText();
-                statusTextBlock.Text = openJsonDlg.SafeFileName + " was succesfully parsed into an XML document";
+                statusTextBlock.Text = "JSON document was succesfully parsed into an XML document";
             }
         }
     }
